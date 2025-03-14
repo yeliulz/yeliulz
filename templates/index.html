@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='yelico.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='yelico.ico') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='yelico.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='yelico.png') }}">
+    <title>File Converter - By YELIUL ZEWDU</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+
+</head>
+<body>
+    <h1>File Converter</h1>
+    <div id="input">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='yel web.png') }}" alt="Logo" class="logo">
+        </div>
+        <form id="conversionForm" action="/convert" method="post" enctype="multipart/form-data">
+            <label for="file">Upload a PDF or Excel file:</label>
+            <input id="file" type="file" name="file" required style="display: none;" onchange="updateDropZoneText()">
+            <br><br>
+            <div id="dropZone" onclick="document.getElementById('file').click();" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
+                Tap to upload or drag and drop a file here
+            </div>
+            <br><br>
+            <button type="button" onclick="showModal()">Start Conversion</button>
+
+        </form>
+    </div>
+    
+    <div id="modal" style="display:none;">
+        <div class="modal-content" style="display: flex; flex-direction: column; align-items: center;">
+            <h2>Enter Your Details</h2>
+            <label for="fullName">Full Name:</label>
+            <input type="text" id="fullName" name="fullName" required>
+
+            <br>
+            <label for="email">Email Address:</label>
+            <input type="email" id="email" name="email" required>
+
+            <br>
+            <button type="button" onclick="submitForm();">Submit</button>
+        </div>
+    </div>
+    <div id="loading" style="display:none;">
+        <div class="loading-content">
+            <h2>Loading...</h2>
+        </div>
+    </div>
+    <div id="success" style="display:none;">
+        <div class="success-content">
+            <h2>Download Successful</h2>
+        </div>
+    </div>
+<div class="topBlur"></div>
+    <footer>
+        <p>YELIUL ZEWDU 2025 All rights reserved</p>
+    </footer>
+    <script>
+        function showModal() {
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function submitForm() {
+            document.getElementById('modal').style.display = 'none';
+            document.getElementById('loading').style.display = 'flex';
+
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+
+            const form = document.getElementById('conversionForm');
+            const formData = new FormData(form);
+            formData.append('fullName', fullName);
+            formData.append('email', email);
+
+            fetch(form.action, {
+                method: form.method,
+                body: formData
+            })
+            .then(response => response.blob()) // Ensure to convert the response to a blob
+            .then(blob => {
+
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+            const uploadedFileName = document.getElementById('file').files[0].name; // Get the uploaded file name
+            a.download = uploadedFileName.replace(/\.[^/.]+$/, "") + '.docx'; // Use uploaded file name
+
+
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('success').style.display = 'flex';
+                setTimeout(() => {
+                    document.getElementById('success').style.display = 'none';
+                }, 3000);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('loading').style.display = 'none';
+                alert('Failed to download the file.');
+            });
+        }
+
+        function dropHandler(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById('file');
+            fileInput.files = event.dataTransfer.files;
+            updateDropZoneText();
+        }
+
+        function dragOverHandler(event) {
+            event.preventDefault();
+        }
+
+        function updateDropZoneText() {
+            const fileInput = document.getElementById('file');
+            const dropZone = document.getElementById('dropZone');
+            if (fileInput.files.length > 0) {
+                dropZone.textContent = fileInput.files[0].name;
+            } else {
+                dropZone.textContent = 'Tap to upload or drag and drop a file here';
+            }
+        }
+    </script>
+</body>
+</html>

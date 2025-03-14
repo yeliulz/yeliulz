@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: file-converter-app
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python app.py"
+    envVars:
+      - key: GOOGLE_CREDENTIALS_JSON
+        sync: false
+      - key: PORT
+        value: 5000
